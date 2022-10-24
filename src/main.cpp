@@ -3,49 +3,83 @@
 #include <stdlib.h>
 #include <driver/i2s.h>
 
+
+//OLED Display Setup
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+#define LOGO_HEIGHT   16
+#define LOGO_WIDTH    16
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+static const unsigned char PROGMEM logo_bmp[] =
+{ 0b00000000, 0b11000000,
+  0b00000001, 0b11000000,
+  0b00000001, 0b11000000,
+  0b00000011, 0b11100000,
+  0b11110011, 0b11100000,
+  0b11111110, 0b11111000,
+  0b01111110, 0b11111111,
+  0b00110011, 0b10011111,
+  0b00011111, 0b11111100,
+  0b00001101, 0b01110000,
+  0b00011011, 0b10100000,
+  0b00111111, 0b11100000,
+  0b00111111, 0b11110000,
+  0b01111100, 0b11110000,
+  0b01110000, 0b01110000,
+  0b00000000, 0b00110000 };
+//end
+
 // I2S
 #define I2S_SAMPLE_RATE (20000) // Max sampling frequency = 277.777 kHz
 #define ADC_INPUT (ADC1_CHANNEL_4) //pin 32
 #define I2S_DMA_BUF_LEN (1024)
 #define NUM_SAMPLES (1300)
-void i2sInit();
+
 
 
 //Other Global variables
 int counter = 0;
-//const int NUM_SAMPLES = 1000; // How many samples
-int SamplingRate = I2S_SAMPLE_RATE; //How many Timer Interrupts per second
 float correlation[NUM_SAMPLES] = {0};
-
-void ReadSamples();
-// void ComputeAverage();
-void ComputeCorrelation();
-void ComputeFrequency();
-void DisplayResults();
-
 uint16_t buffer_i2s[I2S_DMA_BUF_LEN];
 short buffer[NUM_SAMPLES] = {0};
 int bufferAverage = 0;
 int freq = 0;
+short displayLoader = 0;
+
+//Functions
+void ReadSamples();
+void ComputeCorrelation();
+void ComputeFrequency();
+void DisplayConsole();
+void DisplayOLED(int stringNum, int frequency);
+void i2sInit();
+void DisplayInit();
+
+
 
 void setup(){
-  Serial.begin(115200);
-  setCpuFrequencyMhz(240);
+  	Serial.begin(115200);
+  	setCpuFrequencyMhz(240);
 
-  // Initialize the I2S peripheral
-  i2sInit();
+
+	DisplayInit();
+  	i2sInit();
+  
 }
 
 void loop(){
     
-	//Serial.println("1");
 	ReadSamples();
-	//Serial.println("2");
 	ComputeCorrelation();
-	//Serial.println("3");
 	ComputeFrequency();
-	//Serial.println("4");
-	DisplayResults();
+	DisplayConsole();
+	DisplayOLED(2,freq);
 	
 }
 
@@ -108,17 +142,50 @@ void ComputeFrequency(){
 		}
 	}
 		
-	freq = (float)SamplingRate/(highestPeakIndex + 1)*2;//*2?	
-
-
-	counter++;
+	freq = (float)I2S_SAMPLE_RATE/(highestPeakIndex + 1)*2;//*2?	
 
 }
-void DisplayResults(){
+
+void DisplayConsole(){
 	if(freq > 62 && freq < 450) Serial.println(freq);
 	else Serial.println(".\n");
 	Serial.println(freq);
-	counter = 0;
+}
+
+void DisplayOLED(int stringNum, int frequency) {
+	const char notes[] = {'E','A','D','G','B','e'};
+	display.clearDisplay();
+	display.setCursor(0, 0);     // Start at top-left corner
+	display.setTextColor(SSD1306_WHITE); // Draw white text
+  
+	for(int i = 1; i <= 6; i++){
+		if(i == stringNum){
+			display.setTextSize(4);      // Normal 1:1 pixel scale
+			display.print(notes[i-1]);
+		}else{
+			display.setTextSize(1);      // Normal 1:1 pixel scale
+			display.print(notes[i-1]);
+		}
+	}
+	
+
+    display.setTextSize(2);      // Normal 1:1 pixel scale
+    display.setCursor(95,0);     // Start at top-left corner
+    display.print("Hz");
+    display.setCursor(70,18);     // Start at top-left corner
+    
+	if(freq > 62 && freq < 450) display.print(frequency);
+	else{
+		for(short i = 0; i < displayLoader;i++){
+			display.print("-");
+			
+		}
+		displayLoader++;
+		if(displayLoader >= 5) displayLoader = 0;
+	
+	}
+
+  	display.display();
 }
 
 void i2sInit(){
@@ -153,4 +220,12 @@ void i2sInit(){
     while(1);
   }
   Serial.printf("I2S ADC setup ok\n");
+}
+
+void DisplayInit(){
+	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  	if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    	Serial.println(F("SSD1306 allocation failed"));
+    	for(;;); // Don't proceed, loop forever
+  	}
 }
