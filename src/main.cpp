@@ -2,6 +2,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <driver/i2s.h>
+#include <ESP32Servo.h>
+
+
+//Servo Setup
+#define SERVO_PIN 13
+#define SERVO_ACTIVATION_PIN 27
+int dutyCycle;
+const int PWMFreq = 50; /* 50 Hz */
+const int PWMChannel = 0;
+const int PWMResolution = 10;
+const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
+const int Servo_CW_DutyCycle = 102;
+const int Servo_Stop_DutyCycle = 77;
+const int Servo_CCW_DutyCycle = 51;
+
 
 
 //OLED Display Setup
@@ -58,8 +73,10 @@ void ComputeCorrelation();
 void ComputeFrequency();
 void DisplayConsole();
 void DisplayOLED(int stringNum, int frequency);
+void TurnMotor();
 void i2sInit();
 void DisplayInit();
+void ServoInit();
 
 
 
@@ -67,9 +84,9 @@ void setup(){
   	Serial.begin(115200);
   	setCpuFrequencyMhz(240);
 
-
 	DisplayInit();
   	i2sInit();
+	ServoInit();
   
 }
 
@@ -78,8 +95,13 @@ void loop(){
 	ReadSamples();
 	ComputeCorrelation();
 	ComputeFrequency();
-	DisplayConsole();
-	DisplayOLED(2,freq);
+	//DisplayConsole();
+	DisplayOLED(2,freq);// add this display to timer interupt ~0.5s
+	//Determine likely frequency for guitar string
+	Serial.println(digitalRead(SERVO_ACTIVATION_PIN));
+	TurnMotor();//Move Motor
+
+
 	
 }
 
@@ -184,8 +206,31 @@ void DisplayOLED(int stringNum, int frequency) {
 		if(displayLoader >= 5) displayLoader = 0;
 	
 	}
-
+	//display.print(frequency);
   	display.display();
+}
+
+void TurnMotor(){
+	if(digitalRead(SERVO_ACTIVATION_PIN) == LOW){
+		ledcWrite(PWMChannel, Servo_CW_DutyCycle);//Spin Servo CW for 2 seconds
+		delay(1650);//180d
+		ledcWrite(PWMChannel, Servo_Stop_DutyCycle); //Stops Servo for 2 seconds
+		delay(1000);
+		ledcWrite(PWMChannel, Servo_CCW_DutyCycle);//Spin Servo CCW for 2 seconds
+		delay(1650);//180d		
+		ledcWrite(PWMChannel, Servo_Stop_DutyCycle); //Stops Servo for 2 seconds
+		delay(1000);
+	}
+
+}
+
+void ServoInit(){
+
+	pinMode(SERVO_ACTIVATION_PIN, INPUT_PULLUP);
+
+	ledcSetup(PWMChannel, PWMFreq, PWMResolution);
+	/* Attach the LED PWM Channel to the GPIO Pin */
+	ledcAttachPin(SERVO_PIN, PWMChannel);
 }
 
 void i2sInit(){
