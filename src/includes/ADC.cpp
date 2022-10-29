@@ -13,6 +13,10 @@ void ReadSamples(){
 			bufferAverage += buffer[counter];
 			counter++;
 			if(counter > NUM_SAMPLES) {
+        // Serial.println("\n>>>>>>>>>>>>>>>>>>>>\n");
+        // for(int i = 0; i < NUM_SAMPLES; i++){
+        //   Serial.println(buffer[i]);
+        // }
 				bufferAverage /= NUM_SAMPLES;
 				return;
 			}

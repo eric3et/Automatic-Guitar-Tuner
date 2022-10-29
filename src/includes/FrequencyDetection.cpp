@@ -17,6 +17,7 @@ void ComputeCorrelation(){
 	counter++;
 
 	//Display Correlation Data
+	// Serial.println("\n>>>>>>>>>>>>>>>>>>>>\n");
 	// for(short i = 0; i < NUM_SAMPLES; i++){
 	//     Serial.printf("%lf\n",correlation[i]);
 	// }
