@@ -40,6 +40,6 @@ void ComputeFrequency(){
 		}
 	}
 		
-	freq = (float)I2S_SAMPLE_RATE/(highestPeakIndex + 1)*2;//*2?	
+	freq = (float)I2S_SAMPLE_RATE/(highestPeakIndex + 1)*2;	
 
 }

@@ -13,13 +13,13 @@ void DisplayOLED(int stringNum, int frequency) {
 	display.setCursor(0, 0);     // Start at top-left corner
 	display.setTextColor(SSD1306_WHITE); // Draw white text
   
-	for(int i = 1; i <= 6; i++){
+	for(int i = 0; i <= 5; i++){
 		if(i == stringNum){
 			display.setTextSize(4);      // Normal 1:1 pixel scale
-			display.print(notes[i-1]);
+			display.print(notes[i]);
 		}else{
 			display.setTextSize(1);      // Normal 1:1 pixel scale
-			display.print(notes[i-1]);
+			display.print(notes[i]);
 		}
 	}
 	

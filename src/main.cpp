@@ -7,6 +7,7 @@ void setup(){
 	DisplayInit();
   	i2sInit();
 	ServoInit();
+	InterruptsInit();
 }
 
 void loop(){
@@ -15,5 +16,5 @@ void loop(){
 	ComputeCorrelation();
 	ComputeFrequency();
 	//DisplayConsole();
-	DisplayOLED(2,freq);
+	DisplayOLED(currentString,freq);
 }
