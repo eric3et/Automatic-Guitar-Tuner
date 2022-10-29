@@ -59,7 +59,7 @@ extern int freq;
 extern short displayLoader;
 
 //Function Declarations
-void ReadSamples();
+float ReadSamples();
 void ComputeCorrelation();
 void ComputeFrequency();
 void DisplayConsole();

@@ -1,24 +1,37 @@
 #include "Common.h"
 
 
-void ReadSamples(){
+float ReadSamples(){
 	buffer_i2s[I2S_DMA_BUF_LEN] = {0};
 	counter = 0;
 	bufferAverage = 0;
 	size_t bytes_read;
+  int max = 0;
+  int min = 0;
 	while(1){
 		i2s_read(I2S_NUM_0, &buffer_i2s, sizeof(buffer_i2s), &bytes_read, 15);
 		for(int i = 0; i < bytes_read/2; ++i){
 			buffer[counter] = buffer_i2s[i] & 0x0FFF;
+      if(counter == 0) {
+        max = buffer[counter];
+        min = buffer[counter];
+      }else{
+        if(buffer[counter]>max) max = buffer[counter];
+        if(buffer[counter]<min) min = buffer[counter];
+      }
 			bufferAverage += buffer[counter];
 			counter++;
 			if(counter > NUM_SAMPLES) {
-        // Serial.println("\n>>>>>>>>>>>>>>>>>>>>\n");
+        bufferAverage /= NUM_SAMPLES;
+        
+        //Serial.println("\n>>>>>>>>>>>>>>>>>>>>\n");
         // for(int i = 0; i < NUM_SAMPLES; i++){
         //   Serial.println(buffer[i]);
         // }
-				bufferAverage /= NUM_SAMPLES;
-				return;
+        Serial.println((float)(bufferAverage-min)/bufferAverage);
+
+        float diff = (float)(bufferAverage-min)/bufferAverage;
+        return diff;
 			}
 		}
 	}

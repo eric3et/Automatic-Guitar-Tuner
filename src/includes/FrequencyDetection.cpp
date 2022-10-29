@@ -7,12 +7,15 @@ void ComputeCorrelation(){
 	for(int shift = 0; shift < NUM_SAMPLES; shift++){
 		correlation[shift] = 0;
 		for(int i = 0; i < shift; i++){
-			correlation[shift] += ((float)abs(buffer[i]-bufferAverage)/buffer[i]);
+			//correlation[shift] += ((float)abs(buffer[i]-bufferAverage)/buffer[i]); //graph trending up, works better with mic
+			correlation[shift] += 1; //graph trending down, works better with aux
 		}
 		for(int j = shift; j < NUM_SAMPLES-shift; j++){
 			correlation[shift] += ((float)abs(buffer[j]-buffer[j+shift])/buffer[j]);
 		}
 		correlation[shift] = 1-(correlation[shift]/NUM_SAMPLES);
+
+
 	}
 	counter++;
 
