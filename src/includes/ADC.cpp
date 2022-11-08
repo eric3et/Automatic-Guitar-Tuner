@@ -28,7 +28,7 @@ float ReadSamples(){
         // for(int i = 0; i < NUM_SAMPLES; i++){
         //   Serial.println(buffer[i]);
         // }
-        Serial.println((float)(bufferAverage-min)/bufferAverage);
+        //Serial.println((float)(bufferAverage-min)/bufferAverage);
 
         float diff = (float)(bufferAverage-min)/bufferAverage;
         return diff;

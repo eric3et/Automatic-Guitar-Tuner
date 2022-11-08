@@ -29,7 +29,7 @@ void DisplayOLED(int stringNum, int frequency) {
     display.print("Hz");
     display.setCursor(70,18);     // Start at top-left corner
     
-	if(freq > 62 && freq < 450) display.print(frequency);
+	if(frequency > 62 && frequency < 450) display.print(frequency);
 	else{
 		for(short i = 0; i < 4;i++){
 			if(i==displayLoader) display.print(">");
