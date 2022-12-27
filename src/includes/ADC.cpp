@@ -31,6 +31,7 @@ float ReadSamples(){
         //Serial.println((float)(bufferAverage-min)/bufferAverage);
 
         float diff = (float)(bufferAverage-min)/bufferAverage;
+        Serial.println(diff);
         return diff;
 			}
 		}

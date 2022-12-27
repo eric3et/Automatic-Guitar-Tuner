@@ -8,7 +8,6 @@
 
 //PINS
 #define SERVO_PIN 13
-#define SERVO_ACTIVATION_PIN 27
 #define SELECT_STRING_BUTTON_PIN 26
 
 //I2S & ADC Setup
@@ -64,7 +63,8 @@ void ComputeCorrelation();
 void ComputeFrequency();
 void DisplayConsole();
 void DisplayOLED(int stringNum, int frequency);
-void TurnMotor();
+void TurnMotor(int currentString, int freq);
+int GetHzForStringNumber(int stringNumber);
 void i2sInit();
 void DisplayInit();
 void ServoInit();

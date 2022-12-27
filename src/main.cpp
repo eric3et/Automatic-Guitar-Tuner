@@ -13,26 +13,24 @@ void setup(){
 void loop(){
     
 	
-	// ReadSamples();
-	// ComputeCorrelation();
-	// ComputeFrequency();
-	// //DisplayConsole();
-	// DisplayOLED(currentString,freq);
+	ReadSamples();
+	ComputeCorrelation();
+	ComputeFrequency();
+	//DisplayConsole();
+	DisplayOLED(currentString,freq);
+	TurnMotor(currentString,freq);
 	
-	
-	
-	//Need to come up with a better solution for blocking autocorrelation computation when guitar strum is not detected on both aux and mic
-	//This is better for aux, but < 0.30 doesnt work for mic
-	if(ReadSamples() < 0.10) 
-	{ //if string is not being strummed
-		DisplayOLED(currentString,0);
-		//delay(250);
-	}
-	else{
-		ReadSamples();
-		ComputeCorrelation();
-		ComputeFrequency();
-		//DisplayConsole();
-		DisplayOLED(currentString,freq);
-	}
+	// if(ReadSamples() < 0.05) 
+	// { //if string is not being strummed
+	// 	DisplayOLED(currentString,0);
+	// 	//delay(250);
+	// }
+	// else{
+	// 	ReadSamples();
+	// 	ComputeCorrelation();
+	// 	ComputeFrequency();
+	// 	//DisplayConsole();
+	// 	DisplayOLED(currentString,freq);
+	// 	TurnMotor(currentString,freq);
+	// }
 }
