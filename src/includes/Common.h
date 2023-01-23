@@ -1,6 +1,8 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+
+// Libraries
 #include <Arduino.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,18 +58,20 @@ extern short buffer[NUM_SAMPLES];
 extern int bufferAverage;
 extern int freq;
 extern short displayLoader;
+extern const int BAUD_RATE;
+extern const int CPU_FREQ_MHZ;
 
 //Function Declarations
-float ReadSamples();
-void ComputeCorrelation();
-void ComputeFrequency();
-void DisplayConsole();
-void DisplayOLED(int stringNum, int frequency);
-void TurnMotor(int currentString, int freq);
-int GetHzForStringNumber(int stringNumber);
 void i2sInit();
 void DisplayInit();
 void ServoInit();
 void InterruptsInit();
+float ReadSamples();
+void ComputeCorrelation();
+void ComputeFrequency();
+void DisplayOLED(int stringNum, int frequency);
+void StartTuningAlgorithm(int currentString, int freq);
+int GetHzForStringNumber(int stringNumber);
+
 
 #endif

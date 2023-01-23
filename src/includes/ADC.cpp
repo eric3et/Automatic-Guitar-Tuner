@@ -8,6 +8,7 @@ float ReadSamples(){
 	size_t bytes_read;
   int max = 0;
   int min = 0;
+
 	while(1){
 		i2s_read(I2S_NUM_0, &buffer_i2s, sizeof(buffer_i2s), &bytes_read, 15);
 		for(int i = 0; i < bytes_read/2; ++i){
@@ -23,13 +24,6 @@ float ReadSamples(){
 			counter++;
 			if(counter > NUM_SAMPLES) {
         bufferAverage /= NUM_SAMPLES;
-        
-        //Serial.println("\n>>>>>>>>>>>>>>>>>>>>\n");
-        // for(int i = 0; i < NUM_SAMPLES; i++){
-        //   Serial.println(buffer[i]);
-        // }
-        //Serial.println((float)(bufferAverage-min)/bufferAverage);
-
         float diff = (float)(bufferAverage-min)/bufferAverage;
         Serial.println(diff);
         return diff;

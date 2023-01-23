@@ -1,5 +1,6 @@
 #include "Common.h"
 
+
 //Display
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
@@ -12,6 +13,8 @@ short buffer[NUM_SAMPLES] = {0};
 int bufferAverage = 0;
 int freq = 0;
 short displayLoader = 0;
+const int BAUD_RATE = 115200;
+const int CPU_FREQ_MHZ = 240;
 
 
 

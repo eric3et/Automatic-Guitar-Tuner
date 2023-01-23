@@ -2,8 +2,8 @@
 
 
 void setup(){
-  	Serial.begin(115200);
-  	setCpuFrequencyMhz(240);
+  	Serial.begin(BAUD_RATE);
+  	setCpuFrequencyMhz(CPU_FREQ_MHZ);
 	DisplayInit();
   	i2sInit();
 	ServoInit();
@@ -11,26 +11,9 @@ void setup(){
 }
 
 void loop(){
-    
-	
 	ReadSamples();
 	ComputeCorrelation();
 	ComputeFrequency();
-	//DisplayConsole();
 	DisplayOLED(currentString,freq);
-	TurnMotor(currentString,freq);
-	
-	// if(ReadSamples() < 0.05) 
-	// { //if string is not being strummed
-	// 	DisplayOLED(currentString,0);
-	// 	//delay(250);
-	// }
-	// else{
-	// 	ReadSamples();
-	// 	ComputeCorrelation();
-	// 	ComputeFrequency();
-	// 	//DisplayConsole();
-	// 	DisplayOLED(currentString,freq);
-	// 	TurnMotor(currentString,freq);
-	// }
+	StartTuningAlgorithm(currentString,freq);
 }
