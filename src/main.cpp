@@ -8,6 +8,7 @@ void setup(){
   	i2sInit();
 	ServoInit();
 	InterruptsInit();
+	LEDInit();
 }
 
 void loop(){

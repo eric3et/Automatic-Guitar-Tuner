@@ -10,7 +10,14 @@
 
 //PINS
 #define SERVO_PIN 13
-#define SELECT_STRING_BUTTON_PIN 26
+#define SELECT_STRING_BUTTON_PIN 27
+#define LED_LOW_RED_PIN 33
+#define LED_LOW_YELLOW_PIN 25
+#define LED_GREEN_PIN 26
+#define LED_HIGH_YELLOW_PIN 14
+#define LED_HIGH_RED_PIN 12
+#define ADC_PIN 32 // I2S_MODE_ADC_BUILT_IN
+
 
 //I2S & ADC Setup
 #include <driver/i2s.h>
@@ -66,12 +73,16 @@ void i2sInit();
 void DisplayInit();
 void ServoInit();
 void InterruptsInit();
+void LEDInit();
 float ReadSamples();
 void ComputeCorrelation();
 void ComputeFrequency();
 void DisplayOLED(int stringNum, int frequency);
 void StartTuningAlgorithm(int currentString, int freq);
 int GetHzForStringNumber(int stringNumber);
+void DisplayLED(int frequency, int stringNum);
+void TurnOffLEDS();
+void TurnOnLED(int LED_Pin);
 
 
 #endif

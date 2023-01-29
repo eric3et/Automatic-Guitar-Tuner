@@ -18,6 +18,7 @@ void ComputeFrequency(){
 	float highestPeakValue = 0;
 	int highestPeakIndex = 0;
 	bool threshold = false;
+	int tempFreq = 0;
 
 	for(int i = 0; i < correlation_size; i++){
 		if(!threshold){
@@ -29,5 +30,13 @@ void ComputeFrequency(){
 			}
 		}
 	}
-	freq = (float)I2S_SAMPLE_RATE/(highestPeakIndex + 1)*2;	
+	tempFreq = (float)I2S_SAMPLE_RATE/(highestPeakIndex + 1)*2;	
+ 
+	Serial.println(tempFreq);
+	int desiredFreq = GetHzForStringNumber(currentString);
+	if (abs(tempFreq - desiredFreq) <= desiredFreq+(desiredFreq*0.3)) freq = tempFreq;
+	else if(abs(tempFreq*2 - desiredFreq) <= desiredFreq+(desiredFreq*0.15)) freq = tempFreq*2;
+	else if(abs(tempFreq*4 - desiredFreq) <= desiredFreq+(desiredFreq*0.10)) freq = tempFreq*4;
+	else freq = 0;
+
 }
