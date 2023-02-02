@@ -2,37 +2,19 @@
 
 
 void setup(){
-  	Serial.begin(115200);
-  	setCpuFrequencyMhz(240);
+  	Serial.begin(BAUD_RATE);
+  	setCpuFrequencyMhz(CPU_FREQ_MHZ);
 	DisplayInit();
   	i2sInit();
 	ServoInit();
 	InterruptsInit();
+	LEDInit();
 }
 
 void loop(){
-    
-	
-	// ReadSamples();
-	// ComputeCorrelation();
-	// ComputeFrequency();
-	// //DisplayConsole();
-	// DisplayOLED(currentString,freq);
-	
-	
-	
-	//Need to come up with a better solution for blocking autocorrelation computation when guitar strum is not detected on both aux and mic
-	//This is better for aux, but < 0.30 doesnt work for mic
-	if(ReadSamples() < 0.10) 
-	{ //if string is not being strummed
-		DisplayOLED(currentString,0);
-		//delay(250);
-	}
-	else{
-		ReadSamples();
-		ComputeCorrelation();
-		ComputeFrequency();
-		//DisplayConsole();
-		DisplayOLED(currentString,freq);
-	}
+	ReadSamples();
+	ComputeCorrelation();
+	ComputeFrequency();
+	DisplayOLED(currentString,freq);
+	StartTuningAlgorithm(currentString,freq);
 }

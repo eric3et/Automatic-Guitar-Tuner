@@ -1,5 +1,6 @@
 #include "Common.h"
 
+
 void IRAM_ATTR isr() {
 	currentString++;
     if(currentString == 6) currentString = 0;

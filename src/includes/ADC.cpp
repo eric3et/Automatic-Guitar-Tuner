@@ -8,6 +8,7 @@ float ReadSamples(){
 	size_t bytes_read;
   int max = 0;
   int min = 0;
+
 	while(1){
 		i2s_read(I2S_NUM_0, &buffer_i2s, sizeof(buffer_i2s), &bytes_read, 15);
 		for(int i = 0; i < bytes_read/2; ++i){
@@ -23,14 +24,8 @@ float ReadSamples(){
 			counter++;
 			if(counter > NUM_SAMPLES) {
         bufferAverage /= NUM_SAMPLES;
-        
-        //Serial.println("\n>>>>>>>>>>>>>>>>>>>>\n");
-        // for(int i = 0; i < NUM_SAMPLES; i++){
-        //   Serial.println(buffer[i]);
-        // }
-        //Serial.println((float)(bufferAverage-min)/bufferAverage);
-
         float diff = (float)(bufferAverage-min)/bufferAverage;
+        //Serial.println(diff);
         return diff;
 			}
 		}
@@ -39,7 +34,7 @@ float ReadSamples(){
 
 void i2sInit(){
   i2s_config_t i2s_config = {
-    .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_ADC_BUILT_IN),
+    .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX | ADC_PIN),
     .sample_rate =  I2S_SAMPLE_RATE,              // The format of the signal using ADC_BUILT_IN
     .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, // is fixed at 12bit, stereo, MSB
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
