@@ -9,30 +9,33 @@ void DisplayOLED(int stringNum, int frequency) {
   
 	for(int i = 0; i <= 5; i++){
 		if(i == stringNum){
-			display.setTextSize(4);      // Normal 1:1 pixel scale
+			display.setCursor(display.getCursorX(), 9);
+			display.setTextSize(3);      // Normal 1:1 pixel scale
 			display.print(notes[i]);
 		}else{
+			display.setCursor(display.getCursorX(), 0);
 			display.setTextSize(1);      // Normal 1:1 pixel scale
-			display.print(notes[i]);
+			display.print((String)notes[i] + " ");
 		}
 	}
 	
-    display.setTextSize(2);      // Normal 1:1 pixel scale
-    display.setCursor(95,0);     // Start at top-left corner
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(110,0);     // Start at top-left corner
     display.print("Hz");
-    display.setCursor(70,18);     // Start at top-left corner
-    
+    display.setCursor(90,18);     // Start at top-left corner
+	display.setTextSize(2);
+
 	if(frequency > 62 && frequency < 450) {
 		display.print(frequency);
 		DisplayLED(frequency, stringNum);
 	}
 	else{
-		for(short i = 0; i < 4;i++){
+		for(short i = 0; i < 3;i++){
 			if(i==displayLoader) display.print(">");
 			else display.print("-");
 		}
 		displayLoader++;
-		if(displayLoader >= 5) displayLoader = 0;
+		if(displayLoader > 3) displayLoader = 0;
 	}
   	display.display();
 }
@@ -41,7 +44,7 @@ void DisplayLED(int freq, int stringNum){
 	int desiredFreq = GetHzForStringNumber(stringNum);
 	int freqDiff = abs(freq - desiredFreq);
 
-	int toleranceG = desiredFreq * 0.015;
+	int toleranceG = desiredFreq * 0.02;
 	int toleranceGY = desiredFreq * 0.05;
 	int toleranceY = desiredFreq * 0.10;
 	int toleranceYR = desiredFreq * 0.15;
