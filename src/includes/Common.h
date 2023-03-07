@@ -11,6 +11,7 @@
 //PINS
 #define SERVO_PIN 13
 #define SELECT_STRING_BUTTON_PIN 27
+#define TRIGGER_PIN 35
 #define LED_LOW_RED_PIN 33
 #define LED_LOW_YELLOW_PIN 25
 #define LED_GREEN_PIN 26
@@ -67,6 +68,7 @@ extern int freq;
 extern short displayLoader;
 extern const int BAUD_RATE;
 extern const int CPU_FREQ_MHZ;
+extern bool triggerEnabled;
 
 //Function Declarations
 void i2sInit();
@@ -83,6 +85,7 @@ int GetHzForStringNumber(int stringNumber);
 void DisplayLED(int frequency, int stringNum);
 void TurnOffLEDS();
 void TurnOnLED(int LED_Pin);
+void StopMotor();
 
 
 #endif

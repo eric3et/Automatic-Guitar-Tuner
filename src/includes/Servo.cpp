@@ -7,7 +7,6 @@ void ServoInit();
 void StartTuningAlgorithm(int currentString, int frequency);
 void TurnMotorCW(float time);
 void TurnMotorCCW(float time);
-void StopMotor();
 bool IsFreqWithinTuningBounds(int frequency);
 
 #pragma endregion Function Declarations
@@ -47,6 +46,7 @@ void ServoInit(){
 
 //SIMPLE SOLUTION
 void StartTuningAlgorithm(int currentString, int frequency){
+	if(!triggerEnabled) return;
 	desiredFreq = GetHzForStringNumber(currentString);
 	if(IsFreqWithinTuningBounds(frequency)){
 		if(abs(desiredFreq - frequency) <= ceil((float)desiredFreq*tolerance)); //pitch within tolerance = guitar tuned
