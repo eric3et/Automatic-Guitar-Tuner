@@ -35,8 +35,8 @@ void ComputeFrequency(){
 	Serial.println(tempFreq);
 	int desiredFreq = GetHzForStringNumber(currentString);
 	if (abs(tempFreq - desiredFreq) <= desiredFreq+(desiredFreq*0.3)) freq = tempFreq;
-	else if(abs(tempFreq*2 - desiredFreq) <= desiredFreq+(desiredFreq*0.15)) freq = tempFreq*2;
-	else if(abs(tempFreq*4 - desiredFreq) <= desiredFreq+(desiredFreq*0.10)) freq = tempFreq*4;
+	else if(currentString != 0 && abs(tempFreq*2 - desiredFreq) <= desiredFreq+(desiredFreq*0.15)) freq = tempFreq*2;
+	else if(currentString != 0 && abs(tempFreq*4 - desiredFreq) <= desiredFreq+(desiredFreq*0.10)) freq = tempFreq*4;
 	else freq = 0;
 
 }

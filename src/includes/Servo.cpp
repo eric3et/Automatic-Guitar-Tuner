@@ -22,18 +22,20 @@ const int Servo_Stop_DutyCycle = 77; //1.5ms
 const int Servo_CCW_DutyCycle = 51; //1ms
 
 //Constant Tuning Parameters
-const int DefaultCalibration = 50;
+const int DefaultCalibration = 55;
 const float Upper_Tuning_Bound = 1.2;
 const float Lower_Tuning_Bound = 0.8;
 const int Max_Motor_Time = 300; //ms
 
 //Adjustable Tuning Parameters
-float tolerance = 0.02;
+//float tolerance = 0.01;//1% tolerance
+int tolerance = 1;
 int prev_freq = 0;
 float curr_time = 0;
 float prev_time = 0;
 float Ms_Per_Hz = DefaultCalibration;
 int desiredFreq = 0;
+int correctCounter = 0;
 
 #pragma endregion Variables
 
@@ -46,18 +48,40 @@ void ServoInit(){
 
 //SIMPLE SOLUTION
 void StartTuningAlgorithm(int currentString, int frequency){
-	if(!triggerEnabled) return;
+	if(gpio_get_level((gpio_num_t)TRIGGER_PIN) == 1) {tuningComplete = false; return;} // if trigger is not pressed, then exit function
+	if(tuningComplete) return; // if tuning is flagged as complete for the selected string, then exit function
 	desiredFreq = GetHzForStringNumber(currentString);
 	if(IsFreqWithinTuningBounds(frequency)){
-		if(abs(desiredFreq - frequency) <= ceil((float)desiredFreq*tolerance)); //pitch within tolerance = guitar tuned
+		// if(abs(desiredFreq - frequency) <= ceil((float)desiredFreq*tolerance))//pitch within tolerance = guitar tuned
+		//if(desiredFreq == frequency)//tuned with no tolerance
+		if(abs(desiredFreq - frequency) <= tolerance)
+		{
+			if(prev_freq == 0)
+			{
+				prev_freq = frequency;
+			}
+			else
+			{
+				correctCounter++;
+				if(correctCounter > 3)
+				{
+					tuningComplete = true;
+					prev_freq = 0;
+				}
+
+			}
+		}
+		 
 		else if(desiredFreq - frequency > 0)  //pitch up - ccw
 		{
+			correctCounter = 0;
 			curr_time = abs(freq - desiredFreq)*DefaultCalibration;
 			if(abs(curr_time) < Max_Motor_Time) TurnMotorCCW(curr_time);
 			else TurnMotorCCW(Max_Motor_Time);
 		}
 		else if(desiredFreq - frequency < 0) //pitch down - cw
 		{
+			correctCounter = 0;
 			curr_time = abs(freq - desiredFreq)*DefaultCalibration;
 			if(abs(curr_time) < Max_Motor_Time) TurnMotorCW(curr_time);
 			else TurnMotorCW(Max_Motor_Time);
@@ -82,9 +106,10 @@ void TurnMotorCCW(float time){
 }
 
 void StopMotor(){
-	ledcWrite(PWMChannel, Servo_CW_DutyCycle);
-	delay(100);
+	//ledcWrite(PWMChannel, Servo_CW_DutyCycle);
+	// delay(100);
 	ledcWrite(PWMChannel, Servo_Stop_DutyCycle);
+	delay(100);
 }
 
 bool IsFreqWithinTuningBounds(int frequency){
