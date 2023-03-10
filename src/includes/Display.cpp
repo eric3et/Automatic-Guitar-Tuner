@@ -44,7 +44,7 @@ void DisplayLED(int freq, int stringNum){
 	int desiredFreq = GetHzForStringNumber(stringNum);
 	int freqDiff = abs(freq - desiredFreq);
 
-	int toleranceG = desiredFreq * 0.02;
+	int toleranceG = desiredFreq * 0.01;
 	int toleranceGY = desiredFreq * 0.05;
 	int toleranceY = desiredFreq * 0.10;
 	int toleranceYR = desiredFreq * 0.15;
