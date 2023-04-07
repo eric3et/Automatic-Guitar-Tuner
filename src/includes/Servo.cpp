@@ -194,7 +194,7 @@ bool IsFreqWithinTuningBounds(int frequency){
 		if(IsFreqWithinTuningBounds(frequency)){
 			while(abs(desiredFreq - frequency) >= tolerance)
 			{
-				if(error <= tolerance)
+				if(abs(error) <= tolerance)
 				{
 					Ms_Per_Hz = DefaultCalibration;
 					integral = 0;
