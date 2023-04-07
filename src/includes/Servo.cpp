@@ -207,7 +207,7 @@ bool IsFreqWithinTuningBounds(int frequency){
 						if(abs(curr_time) < Max_Motor_Time) TurnMotorCCW(curr_time);
 						else TurnMotorCCW(Max_Motor_Time);
 					}
-					if(error < 0)
+					else if(error < 0)
 					{
 						curr_time = abs(error)*(Ms_Per_Hz);
 						if(abs(curr_time) < Max_Motor_Time) TurnMotorCW(curr_time);
