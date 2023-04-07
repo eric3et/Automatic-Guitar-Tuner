@@ -36,6 +36,14 @@ float prev_time = 0;
 float Ms_Per_Hz = DefaultCalibration;
 int desiredFreq = 0;
 
+//PID Parameters
+float proportional = 0;
+float integral = 0;
+float error = 0;
+float kp = 0.9;
+float ki = 0.54;
+float rate = 0.5; //placeholder
+
 #pragma endregion Variables
 
 #pragma region Functions
@@ -45,6 +53,7 @@ void ServoInit(){
 	ledcAttachPin(SERVO_PIN, PWMChannel);
 }
 
+/*
 //SIMPLE SOLUTION
 void StartTuningAlgorithm(int currentString, int frequency){
 	desiredFreq = GetHzForStringNumber(currentString);
@@ -64,6 +73,7 @@ void StartTuningAlgorithm(int currentString, int frequency){
 		}
 	}
 }
+*/
 
 void TurnMotorCW(float time){
 	ledcWrite(PWMChannel, Servo_CW_DutyCycle);
@@ -125,6 +135,75 @@ bool IsFreqWithinTuningBounds(int frequency){
 // 		}
 // 	}
 // }
+
+/*
+	PI Controller Implementation
+	--------------------------------
+	Pout = kp * e(t)
+	proportional = setpoint - currentvalue
+	setpoint = desiredFreq
+	currentvalue = frequency
+
+	Integral implementation, sum the error over time
+	ki = ?
+	pout = kp*e(t) + (ki*int)*t
+	integral = integral + error;
+
+	calibration = (error * calibrationrate) + defaulcalibration ?
+*/
+
+	void StartTuningAlgorithm(int currentString, int frequency){
+		if(gpio_get_level((gpio_num_t)TRIGGER_PIN) == 1) {tuningComplete = false; return;} // if trigger is not pressed, then exit function
+		if(tuningComplete) return; // if tuning is flagged as complete for the selected string, then exit function
+		desiredFreq = GetHzForStringNumber(currentString);
+		proportional = desiredFreq - frequency;
+		integral = integral + proportional;
+		error = (kp * proportional) + ((ki * integral));
+
+		if(error < 3)
+			Ms_Per_Hz = DefaultCalibration - (error * rate);
+		else
+			Ms_Per_Hz = DefaultCalibration + (error * rate);
+
+		
+		if(IsFreqWithinTuningBounds(frequency)){
+			while(abs(desiredFreq - frequency) >= tolerance)
+			{
+				if(error <= tolerance)
+				{
+					Ms_Per_Hz = DefaultCalibration;
+					integral = 0;
+				}
+				else
+				{
+					if(error > 0)
+					{
+						curr_time = abs(error)*(Ms_Per_Hz);
+						if(abs(curr_time) < Max_Motor_Time) TurnMotorCCW(curr_time);
+						else TurnMotorCCW(Max_Motor_Time);
+					}
+					if(error < 0)
+					{
+						curr_time = abs(error)*(Ms_Per_Hz);
+						if(abs(curr_time) < Max_Motor_Time) TurnMotorCW(curr_time);
+						else TurnMotorCW(Max_Motor_Time);
+					}	
+				}
+
+				desiredFreq = GetHzForStringNumber(currentString);
+				proportional = desiredFreq - frequency;
+				integral = integral + proportional;
+				error = (kp * proportional) + ((ki * integral));
+
+				if(error < 3)
+					Ms_Per_Hz = DefaultCalibration - (error * rate);
+				else
+					Ms_Per_Hz = DefaultCalibration + (error * rate);	
+			}							
+		}
+
+	}
+
 
 #pragma endregion Functions
 
