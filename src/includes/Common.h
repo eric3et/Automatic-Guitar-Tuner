@@ -64,11 +64,12 @@ extern float correlation[NUM_SAMPLES];
 extern uint16_t buffer_i2s[I2S_DMA_BUF_LEN];
 extern short buffer[NUM_SAMPLES];
 extern int bufferAverage;
-extern int freq;
+extern float freq;
 extern short displayLoader;
 extern const int BAUD_RATE;
 extern const int CPU_FREQ_MHZ;
 extern bool tuningComplete;
+extern int calibrate;
 
 //Function Declarations
 void i2sInit();
@@ -80,7 +81,7 @@ float ReadSamples();
 void ComputeCorrelation();
 void ComputeFrequency();
 void DisplayOLED(int stringNum, int frequency);
-void StartTuningAlgorithm(int currentString, int freq);
+void StartTuningAlgorithm(int currentString, float freq);
 int GetHzForStringNumber(int stringNumber);
 void DisplayLED(int frequency, int stringNum);
 void TurnOffLEDS();

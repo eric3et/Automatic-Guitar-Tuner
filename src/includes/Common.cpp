@@ -11,11 +11,12 @@ float correlation[NUM_SAMPLES] = {0};
 uint16_t buffer_i2s[I2S_DMA_BUF_LEN];
 short buffer[NUM_SAMPLES] = {0};
 int bufferAverage = 0;
-int freq = 0;
+float freq = 0;
 short displayLoader = 0;
 const int BAUD_RATE = 115200;
 const int CPU_FREQ_MHZ = 240;
 bool tuningComplete = false;
+int calibrate = 0;
 
 
 

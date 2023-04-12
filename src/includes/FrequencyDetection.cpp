@@ -18,7 +18,7 @@ void ComputeFrequency(){
 	float highestPeakValue = 0;
 	int highestPeakIndex = 0;
 	bool threshold = false;
-	int tempFreq = 0;
+	float tempFreq = 0;
 
 	for(int i = 0; i < correlation_size; i++){
 		if(!threshold){

@@ -5,6 +5,8 @@ void IRAM_ATTR StringSelectButtonISR() {
 	currentString++;
     if(currentString == 6) currentString = 0;
     tuningComplete = false;
+    calibrate = 0;
+
     //debounce
     unsigned long t = millis();
     while(millis()-t < 200);
