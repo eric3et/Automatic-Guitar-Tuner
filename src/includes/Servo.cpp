@@ -26,11 +26,11 @@ const int Servo_CCW_DutyCycle = 51; //1ms
 const int DefaultCalibration = 200;
 const float Upper_Tuning_Bound = 1.2;
 const float Lower_Tuning_Bound = 0.8;
-const int Max_Motor_Time = 1000; //ms
+const int Max_Motor_Time = 2000; //ms
 
 //Adjustable Tuning Parameters
 //float tolerance = 0.01;//1% tolerance
-int tolerance = 2;
+int tolerance = 1;
 int prev_freq = 0;
 float curr_time = 0;
 float prev_time = 0;
@@ -100,7 +100,7 @@ void StartTuningAlgorithm(int currentString, float frequency){
 		else
 		{
 			correctCounter++;
-			if(correctCounter > 3)
+			if(correctCounter > 2)
 			{
 				tuningComplete = true;
 				prev_freq = 0;
@@ -152,13 +152,10 @@ void StartTuningAlgorithm(int currentString, float frequency){
 					// this state will compare frequency from initial calibration, and determine a calibration value, Ms_Per_Hz
 					// if the frequency went the wrong way, it will switch tuner to a clockwise tighened guitar,
 
-
-
-
-
 					//flip tuning rotation if guitar is strung other way
 					//if(abs(desiredFreq-frequency > proportional)) standardTuning = !standardTuning;
 					if(prev_freq - frequency == 0){
+						Serial.println("Calibration Reset, Case 1, prev_freq - frequency == 0");
 						calibrate = 0;
 						return;
 					}
@@ -188,11 +185,10 @@ void StartTuningAlgorithm(int currentString, float frequency){
 					// FUNCTIONALITY
 					// Tune the guitar using the constantly calibrated error value, recompute the error value upon each iteration.
 
-
-
 					proportional = desiredFreq - frequency;
 					if(proportional <= 0) {
-						calibrate = 0;
+						//calibrate = 0;
+						Serial.println("Calibration Reset, Case 2, Proportional <= 0");
 						return;
 					}
 					integral = integral + proportional;
@@ -233,6 +229,7 @@ void TurnMotorCW(float time){
 	if (time>Max_Motor_Time) 
 	{
 		calibrate = 0;
+		Serial.println("Calibration Reset, TurnMotorCW()");
 		time = DefaultCalibration;
 	}
 	
@@ -255,6 +252,7 @@ void TurnMotorCCW(float time){
 	if (time>Max_Motor_Time) 
 	{
 		calibrate = 0;
+		Serial.println("Calibration Reset, TurnMotorCCW()");
 		time = DefaultCalibration;
 	}
 	Serial.println("ccw:");
