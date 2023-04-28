@@ -23,7 +23,7 @@ const int Servo_Stop_DutyCycle = 77; //1.5ms
 const int Servo_CCW_DutyCycle = 51; //1ms
 
 //Constant Tuning Parameters
-const int DefaultCalibration = 200;
+const int DefaultCalibration = 100;
 const float Upper_Tuning_Bound = 1.2;
 const float Lower_Tuning_Bound = 0.8;
 const int Max_Motor_Time = 2000; //ms
@@ -100,7 +100,7 @@ void StartTuningAlgorithm(int currentString, float frequency){
 		else
 		{
 			correctCounter++;
-			if(correctCounter > 2)
+			if(correctCounter > 3)
 			{
 				tuningComplete = true;
 				prev_freq = 0;
@@ -136,7 +136,7 @@ void StartTuningAlgorithm(int currentString, float frequency){
 					Serial.println(desiredFreq - frequency);
 					if(desiredFreq - frequency > 0)  //pitch up - ccw
 					{
-						TurnMotorCCW(DefaultCalibration);
+						TurnMotorCCW(DefaultCalibration*proportional);
 					}
 					else if(desiredFreq - frequency < 0) //pitch down - cw
 					{
@@ -188,8 +188,9 @@ void StartTuningAlgorithm(int currentString, float frequency){
 					proportional = desiredFreq - frequency;
 					if(proportional <= 0) {
 						//calibrate = 0;
-						Serial.println("Calibration Reset, Case 2, Proportional <= 0");
-						return;
+						proportional = 0.01;
+						//Serial.println("Calibration Reset, Case 2, Proportional <= 0");
+						//return;
 					}
 					integral = integral + proportional;
 					error = (kp * proportional) + ((ki * integral));
@@ -253,7 +254,7 @@ void TurnMotorCCW(float time){
 	{
 		calibrate = 0;
 		Serial.println("Calibration Reset, TurnMotorCCW()");
-		time = DefaultCalibration;
+		time = Max_Motor_Time;
 	}
 	Serial.println("ccw:");
 	Serial.println(time);
