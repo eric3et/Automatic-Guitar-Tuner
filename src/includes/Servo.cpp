@@ -23,14 +23,14 @@ const int Servo_Stop_DutyCycle = 77; //1.5ms
 const int Servo_CCW_DutyCycle = 51; //1ms
 
 //Constant Tuning Parameters
-const int DefaultCalibration = 100;
+const int DefaultCalibration = 200;
 const float Upper_Tuning_Bound = 1.2;
 const float Lower_Tuning_Bound = 0.8;
-const int Max_Motor_Time = 2000; //ms
+const int Max_Motor_Time = 1500; //ms
 
 //Adjustable Tuning Parameters
 //float tolerance = 0.01;//1% tolerance
-int tolerance = 1;
+int tolerance = 2;
 int prev_freq = 0;
 float curr_time = 0;
 float prev_time = 0;
@@ -41,6 +41,10 @@ bool standardTuning = true;
 
 //PID Parameters
 float proportional = 0;
+float prev_proportional = 0;
+float prev_integral = 0;
+float prev_error = 0;
+float prev_Ms_Per_Hz = 0;
 float integral = 0;
 float error = 0;
 float kp = 0.9;
@@ -95,16 +99,22 @@ void StartTuningAlgorithm(int currentString, float frequency){
 	//if current frequency is within tolerance of desired frequency 3 times in a row, mark tuning as complete.
 	if(abs(desiredFreq - frequency) <= tolerance)
 	{
-		calibrate = 0;
-		if(prev_freq == 0) prev_freq = frequency;
-		else
-		{
-			correctCounter++;
-			if(correctCounter > 3)
-			{
-				tuningComplete = true;
-				prev_freq = 0;
-			}
+		//calibrate = 0;
+		// if(prev_freq == 0) prev_freq = frequency;
+		// else
+		// {
+		// 	correctCounter++;
+		// 	if(correctCounter > 1)
+		// 	{
+		// 		tuningComplete = true;
+		// 		prev_freq = 0;
+		// 	}
+		// }
+		correctCounter++;
+
+		if(correctCounter >= 1){
+			tuningComplete = true;
+			prev_freq = 0;
 		}
 	}
 	else
@@ -136,7 +146,7 @@ void StartTuningAlgorithm(int currentString, float frequency){
 					Serial.println(desiredFreq - frequency);
 					if(desiredFreq - frequency > 0)  //pitch up - ccw
 					{
-						TurnMotorCCW(DefaultCalibration*proportional);
+						TurnMotorCCW(DefaultCalibration);
 					}
 					else if(desiredFreq - frequency < 0) //pitch down - cw
 					{
@@ -159,18 +169,19 @@ void StartTuningAlgorithm(int currentString, float frequency){
 						calibrate = 0;
 						return;
 					}
-					Ms_Per_Hz = DefaultCalibration/abs(prev_freq - frequency);
+					
+					proportional = abs(desiredFreq - frequency);
+					Ms_Per_Hz = DefaultCalibration/proportional;
 
 					prev_freq = frequency;
-					range = abs(desiredFreq - frequency);
 
 					if(desiredFreq - frequency > 0)  //pitch up - ccw
 					{
-						TurnMotorCCW(Ms_Per_Hz*range);
+						TurnMotorCCW(Ms_Per_Hz*proportional);
 					}
 					else if(desiredFreq - frequency < 0) //pitch down - cw
 					{
-						TurnMotorCW(Ms_Per_Hz*range);
+						TurnMotorCW(Ms_Per_Hz*proportional);
 					}
 
 					calibrate = 2;
@@ -185,20 +196,34 @@ void StartTuningAlgorithm(int currentString, float frequency){
 					// FUNCTIONALITY
 					// Tune the guitar using the constantly calibrated error value, recompute the error value upon each iteration.
 
-					proportional = desiredFreq - frequency;
-					if(proportional <= 0) {
+					proportional = abs(desiredFreq - frequency);
+					if(proportional == 0) {
 						//calibrate = 0;
-						proportional = 0.01;
-						//Serial.println("Calibration Reset, Case 2, Proportional <= 0");
-						//return;
+						if(prev_proportional == 0){
+							calibrate = 0;
+							return;
+						}else{
+							proportional = prev_proportional;
+						}
+						
 					}
+
+					prev_Ms_Per_Hz = Ms_Per_Hz;
+					prev_integral = integral;
+					prev_error = error;
+
 					integral = integral + proportional;
 					error = (kp * proportional) + ((ki * integral));
-
 					Ms_Per_Hz += Ms_Per_Hz*(error / proportional);
 					
 					prev_freq = frequency;
 					
+					// if(Ms_Per_Hz*proportional > Max_Motor_Time){
+					// 	integral = prev_integral;
+					// 	error = prev_error;
+					// 	Ms_Per_Hz = prev_Ms_Per_Hz;
+					// }
+
 					if(desiredFreq - frequency > 0)  //pitch up - ccw
 					{
 						TurnMotorCCW(Ms_Per_Hz*proportional);
@@ -221,17 +246,10 @@ void StartTuningAlgorithm(int currentString, float frequency){
 
 
 void TurnMotorCW(float time){
-	//used to invert tuning direction if necessary
-	// if(!standardTuning){
-	// 	TurnMotorCCW(time);
-	// 	return;
-	// }
-	
-	if (time>Max_Motor_Time) 
+
+	if (abs(time) < DefaultCalibration || abs(time) > Max_Motor_Time) 
 	{
-		calibrate = 0;
-		Serial.println("Calibration Reset, TurnMotorCW()");
-		time = DefaultCalibration;
+		 time = DefaultCalibration;
 	}
 	
 	Serial.println("cw:");
@@ -244,18 +262,12 @@ void TurnMotorCW(float time){
 }
 
 void TurnMotorCCW(float time){
-	//used to invert tuning direction if necessary
-	// if(!standardTuning){
-	// 	TurnMotorCW(time);
-	// 	return;
-	// }
-	
-	if (time>Max_Motor_Time) 
+
+	if (abs(time) < DefaultCalibration || abs(time) > Max_Motor_Time) 
 	{
-		calibrate = 0;
-		Serial.println("Calibration Reset, TurnMotorCCW()");
-		time = Max_Motor_Time;
+		 time = DefaultCalibration;
 	}
+
 	Serial.println("ccw:");
 	Serial.println(time);
 	ledcWrite(PWMChannel, Servo_CCW_DutyCycle);
