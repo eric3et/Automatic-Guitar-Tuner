@@ -29,7 +29,6 @@ const float Lower_Tuning_Bound = 0.8;
 const int Max_Motor_Time = 1500; //ms
 
 //Adjustable Tuning Parameters
-//float tolerance = 0.01;//1% tolerance
 int tolerance = 2;
 int prev_freq = 0;
 float curr_time = 0;
@@ -42,9 +41,6 @@ bool standardTuning = true;
 //PID Parameters
 float proportional = 0;
 float prev_proportional = 0;
-float prev_integral = 0;
-float prev_error = 0;
-float prev_Ms_Per_Hz = 0;
 float integral = 0;
 float error = 0;
 float kp = 0.9;
@@ -61,21 +57,6 @@ void ServoInit(){
 	ledcAttachPin(SERVO_PIN, PWMChannel);
 }
 
-	// PI Controller Implementation
-	// --------------------------------
-	// Pout = kp * e(t)
-	// proportional = setpoint - currentvalue
-	// setpoint = desiredFreq
-	// currentvalue = frequency
-
-	// Integral implementation, sum the error over time
-	// ki = ?
-	// pout = kp*e(t) + (ki*int)*t
-	// integral = integral + error;
-
-	// calibration = (error * calibrationrate) + defaulcalibration ?
-
-//Erics PID SOLUTION
 void StartTuningAlgorithm(int currentString, float frequency){
 
 
@@ -96,20 +77,9 @@ void StartTuningAlgorithm(int currentString, float frequency){
 	// Get desired frequency for current string
 	desiredFreq = GetHzForStringNumber(currentString);
 
-	//if current frequency is within tolerance of desired frequency 3 times in a row, mark tuning as complete.
+	//if current frequency is within tolerance of desired frequency, mark tuning as complete.
 	if(abs(desiredFreq - frequency) <= tolerance)
 	{
-		//calibrate = 0;
-		// if(prev_freq == 0) prev_freq = frequency;
-		// else
-		// {
-		// 	correctCounter++;
-		// 	if(correctCounter > 1)
-		// 	{
-		// 		tuningComplete = true;
-		// 		prev_freq = 0;
-		// 	}
-		// }
 		correctCounter++;
 
 		if(correctCounter >= 1){
@@ -127,12 +97,6 @@ void StartTuningAlgorithm(int currentString, float frequency){
 				case 0:
 				Serial.println("CASE 0:");
 					//initial calibration
-					//We need to come up with a solution that triggers this initial setup when...
-					//	1. picking a new string
-					//	2. If device is set to E string for too long, it will trigger this when the user starts actively using the device
-
-					// perhaps when the trigger button is released, the initial calibration will run again, once the trigger is held.
-					
 					// FUNCTIONALITY
 					// this state will attempt to move the motor in the correct direction.
 					// it will then switch to the secondary calibratioin state.
@@ -161,9 +125,6 @@ void StartTuningAlgorithm(int currentString, float frequency){
 					// FUNCTIONALITY
 					// this state will compare frequency from initial calibration, and determine a calibration value, Ms_Per_Hz
 					// if the frequency went the wrong way, it will switch tuner to a clockwise tighened guitar,
-
-					//flip tuning rotation if guitar is strung other way
-					//if(abs(desiredFreq-frequency > proportional)) standardTuning = !standardTuning;
 					if(prev_freq - frequency == 0){
 						Serial.println("Calibration Reset, Case 1, prev_freq - frequency == 0");
 						calibrate = 0;
@@ -198,7 +159,6 @@ void StartTuningAlgorithm(int currentString, float frequency){
 
 					proportional = abs(desiredFreq - frequency);
 					if(proportional == 0) {
-						//calibrate = 0;
 						if(prev_proportional == 0){
 							calibrate = 0;
 							return;
@@ -208,21 +168,11 @@ void StartTuningAlgorithm(int currentString, float frequency){
 						
 					}
 
-					prev_Ms_Per_Hz = Ms_Per_Hz;
-					prev_integral = integral;
-					prev_error = error;
-
 					integral = integral + proportional;
 					error = (kp * proportional) + ((ki * integral));
 					Ms_Per_Hz += Ms_Per_Hz*(error / proportional);
 					
 					prev_freq = frequency;
-					
-					// if(Ms_Per_Hz*proportional > Max_Motor_Time){
-					// 	integral = prev_integral;
-					// 	error = prev_error;
-					// 	Ms_Per_Hz = prev_Ms_Per_Hz;
-					// }
 
 					if(desiredFreq - frequency > 0)  //pitch up - ccw
 					{
