@@ -15,6 +15,7 @@ int freq = 0;
 short displayLoader = 0;
 const int BAUD_RATE = 115200;
 const int CPU_FREQ_MHZ = 240;
+bool tuningComplete = false;
 
 
 
